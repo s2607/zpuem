@@ -17,6 +17,7 @@ alu  mainalu;
 void loadrom() {
 	mem[0]=0b11111111;
 	mem[1]=0b11111111;
+	mem[2]=0b11111111;
 }
 void machinestate() {
 	printf("SP:   %#08x\nIDM:  %d\nIP:   %#08x\nIRUP: %d\nEQ:   %d\nSTOP: %#08x\n"
