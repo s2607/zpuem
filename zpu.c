@@ -16,6 +16,7 @@ typedef struct {
 alu  mainalu;
 void loadrom() {
 	mem[0]=0b11111111;
+	mem[1]=0b11111111;
 }
 void machinestate() {
 	printf("SP:   %#08x\nIDM:  %d\nIP:   %#08x\nIRUP: %d\nEQ:   %d\nSTOP: %#08x\n"
@@ -36,14 +37,12 @@ void debug() {
 }
 void ins_im(){
 	printf("ins_im\n");
-	if(mainalu.idm)
+		//Maybe this should be a macro?
+	*(mainalu.sp)=((*mainalu.sp)<<7);
+	if(!mainalu.idm)
 		mainalu.idm=1;
-		*(mainalu.sp)=(*mainalu.sp)<<7;
-	printf("half\n");
 	int a=(int )((*mainalu.ip)&(~IM));
-	printf("a\n");
-	*mainalu.sp=a;
-	printf("almost\n");
+	*mainalu.sp=a&(0x000000EF)|(*mainalu.sp);//This line may have issues
 	mainalu.ip=mainalu.ip+1;
 }
 void decode() {
