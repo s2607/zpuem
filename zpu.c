@@ -42,7 +42,7 @@ void ins_im(){
 	if(!mainalu.idm)
 		mainalu.idm=1;
 	int a=(int )((*mainalu.ip)&(~IM));
-	*mainalu.sp=a&(0x000000EF)|(*mainalu.sp);//This line may have issues
+	*mainalu.sp=a&(0x000000FF)|(*mainalu.sp);//This line may have issues
 	mainalu.ip=mainalu.ip+1;
 }
 void decode() {
