@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #define IM 0b10000000
+#define SOP 0b11100000
 #define WS 4
 char mem[0x1000];
 
@@ -46,6 +47,20 @@ void ins_im(){
 	*mainalu.sp=a&(0x000000FF)|(*mainalu.sp);//This line may have issues
 	mainalu.ip=mainalu.ip+1;
 }
+void ins_storesp(){//if you're like me you're probably wondering what on earth this does,
+	//I belive it is for local variables stored on the stack
+	int v=(*mainalu.sp);
+	mainalu.sp+=1;
+	*(mainalu.sp+(((*mainalu.ip)&SOP)*4))=v;
+}//TODO: test these, we lack the instructions to right now
+void ins_loadsp(){//see storesp
+	int v= *(mainalu.sp+(((*mainalu.ip)&SOP)*4));
+	mainalu.sp-=1;
+	*(mainalu.sp)=v;
+}
+void opless() {
+	illigal();
+}
 void decode() {
 	/*switch(mem[mainalu.ip]) {
 		case 0 : debug();break;
@@ -61,6 +76,13 @@ void decode() {
 		if(ins &IM){
 			ins_im();
 			dec=1;
+		}else {
+			mainalu.idm=0;
+			switch(ins& SOP){
+				case 0b0100000000:ins_storesp();break;
+				case 0:opless();break;
+				default: illigal();
+			}
 		}
 	}	
 	if(!dec)
