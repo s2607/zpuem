@@ -2,14 +2,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #define IM 0b10000000
-char mem[4000];
+#define WS 4
+char mem[0x1000];
 
 typedef struct {
-	int sp;
+	int * sp;
 	int idm;
-	int ip;
+	char * ip;
 	int irup;
 	int eq;
+
 }alu ;
 alu  mainalu;
 void loadrom() {
@@ -17,8 +19,9 @@ void loadrom() {
 }
 void machinestate() {
 	printf("SP:   %#08x\nIDM:  %d\nIP:   %#08x\nIRUP: %d\nEQ:   %d\nSTOP: %#08x\n"
-		,mainalu.sp,mainalu.idm,mainalu.ip,mainalu.irup,
-		mainalu.eq,mem[mainalu.sp]);
+		,(unsigned int)(mainalu.sp-(int *)&mem[0]),mainalu.idm,
+		(unsigned int)(mainalu.ip-&mem[0]),mainalu.irup,
+		mainalu.eq, *mainalu.sp);
 }
 void illigal() {
 	puts("ILLIGAL INSTRUCTION");
@@ -32,7 +35,15 @@ void debug() {
 	exit(0);
 }
 void ins_im(){
-	mem[mainalu.sp]=mem[mainalu.ip]&(~IM);
+	printf("ins_im\n");
+	if(mainalu.idm)
+		mainalu.idm=1;
+		*(mainalu.sp)=(*mainalu.sp)<<7;
+	printf("half\n");
+	int a=(int )((*mainalu.ip)&(~IM));
+	printf("a\n");
+	*mainalu.sp=a;
+	printf("almost\n");
 	mainalu.ip=mainalu.ip+1;
 }
 void decode() {
@@ -40,7 +51,7 @@ void decode() {
 		case 0 : debug();break;
 		default : illigal();
 	}*/
-	char ins = mem[mainalu.ip];
+	char ins = *mainalu.ip;
 	int dec=0;
 	if(ins==0){
 		debug();
@@ -63,9 +74,11 @@ void start() {
 }
 int main()
 {
-	mainalu.sp=0;
+	mainalu.sp=(int *)&mem[0x0ffb];
+	mainalu.ip=&mem[0x0000];
 	mainalu.idm=0;
 	loadrom();
+	printf("starting simulation\n");
 	start();
 	return 0;
 }
