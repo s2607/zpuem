@@ -1,0 +1,18 @@
+DONE
+	brk
+	storesp
+	loadsp
+	em
+	load
+	store
+
+TODO
+	ADDSP	0001 xxxx
+	PUSHPC	?
+	POPPC	0000 0100 pop address into pc
+	ADD	0000 0101 pop two numbers push sum
+	AND	0000 0110 pop two numbers and push bitwise & 
+	OR	0000 0111
+	NOT	0000 1001
+	FLIP	0000 1010 reverse bit order of top stack value
+	NOP	0000 1011 clear IDIM

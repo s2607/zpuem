@@ -58,7 +58,19 @@ void ins_loadsp(){//see storesp
 	mainalu.sp-=1;
 	*(mainalu.sp)=v;
 }
+void ins_load() {
+	*mainalu.sp=mem[(*mainalu.sp&0xFFFFFFFD)*4];
+}
+void ins_addsp() {
+}
 void opless() {
+	switch(*mainalu.ip) {
+	case 0b00001000:ins_load();break;
+	case 0b00001100:ins_store();break;
+		default: illigal();
+	}
+}
+void ins_em() {
 	illigal();
 }
 void decode() {
@@ -79,7 +91,10 @@ void decode() {
 		}else {
 			mainalu.idm=0;
 			switch(ins& SOP){
-				case 0b0100000000:ins_storesp();break;
+				case 0b01000000:ins_storesp();break;
+				case 0b01100000:ins_loadsp();break;
+				case 0b00100000:ins_em();break;
+				case 0b00010000:ins_addsp();break;
 				case 0:opless();break;
 				default: illigal();
 			}
