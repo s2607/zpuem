@@ -4,7 +4,7 @@
 #define IM 0b10000000
 #define SOP 0b11100000
 #define WS 4
-char mem[0x1000];
+char mem[0x10000];
 char *uout= &mem[0xFFFF];//heh
 
 typedef struct {
@@ -17,13 +17,16 @@ typedef struct {
 }alu ;
 alu  mainalu;
 void loadrom() {
-	mem[0]=0b11111111;
-	mem[1]=0b11111111;
-	mem[2]=0b11111111;
+//	mem[0]=0b11111111;
+//	mem[1]=0b11111111;
+//	mem[2]=0b11111111;
+	FILE *fp = fopen("./rom.bin","r");
+	printf("Loaded %d bytes of rom\n",fread(mem,sizeof(int),0x1000,fp));
+	fclose(fp);
 }
 void machinestate() {
-	printf("SP:   %#08x\nIDM:  %d\nIP:   %#08x\nIRUP: %d\nEQ:   %d\nSTOP: %#08x\n"
-		,(unsigned int)(mainalu.sp-(int *)&mem[0]),mainalu.idm,
+	printf("OP:   %04x\nSP:   %#08x\nIDM:  %d\nIP:   %#08x\nIRUP: %d\nEQ:   %d\nSTOP: %#08x\n"
+		,(*mainalu.ip), (unsigned int)(mainalu.sp-(int *)&mem[0]),mainalu.idm,
 		(unsigned int)(mainalu.ip-&mem[0]),mainalu.irup,
 		mainalu.eq, *mainalu.sp);
 }
@@ -44,6 +47,7 @@ int popint() {
 	return r;
 }
 void pushint(int a) {
+	puts("pushint");
 	*(mainalu.sp)=a;
 	mainalu.sp+=1;
 }
@@ -73,9 +77,14 @@ void ins_load() {
 	pushint(*(&mem+((popint()&0xFFFFFFFD)*4)));
 }
 void ins_store() {
-	*mainalu.sp=mem[(*mainalu.sp&0xFFFFFFFD)*4];
+	//*mainalu.sp=mem[(*mainalu.sp&0xFFFFFFFD)*4];
+	int addr=popint()&0xFFFFFFFD;
+	int val=popint();
+	*((int*)&mem[addr*4])=val;
 }
 void ins_addsp() {
+	int xxxx=(int )((*mainalu.ip)&(~IM));
+	pushint(popint()+(*(mainalu.sp+xxxx*4)));
 }
 void ins_poppc() {
 	mainalu.ip=(popint());
@@ -90,6 +99,14 @@ void ins_not() {
 	pushint(~popint());
 }
 void ins_flip() {
+	int i=0;
+	int inval=popint();
+	int outval;
+	for(i=0;i<32;i++) {
+		if((inval<<i)&0b100000000000000000000000000000000)
+			outval=outval|(0b1>>i);
+	}
+	pushint(outval);
 }
 void opless() {
 	switch(*mainalu.ip) {
@@ -140,6 +157,7 @@ void decode() {
 	if(*uout)
 		putchar(*uout);
 	uout=0;
+	mainalu.ip=mainalu.ip+1;
 }
 void start() {
 	while(1) {

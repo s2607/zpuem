@@ -8,13 +8,19 @@ DONE
 	OR	0000 0111
 	NOT	0000 1001
 	NOP	0000 1011 clear IDIM (all instructions except im do this)
-STARTED
-	store
-	ADDSP	0001 xxxx
-	POPPC	0000 0100 pop address into pc (Untested, wrong bitwidth)
-	FLIP	0000 1010 reverse bit order of top stack value
+	store (untested)
+	ADDSP	0001 xxxx (untested)
+	POPPC	0000 0100 pop address into pc (Untested)
+	FLIP	0000 1010 reverse bit order of top stack value (Untested)
 TODO
-	fix push/pop int to use correct size
+	test untested
+	rom image loader
+	vectors
+		0x20 interupt (automaticly push pc and jump)
+		0x0, 0x4, 0x8, 0xc are gcc registers
+		0x000 reset (SP must default to max ram address)
+		0x40- emulated jump vector 
+	lots of error handling
 WONT
 	PUSHPC	?
 values are 32 bits
