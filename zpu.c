@@ -5,6 +5,7 @@
 #define SOP 0b11100000
 #define WS 4
 char mem[0x1000];
+char *uout= &mem[0xFFFF];//heh
 
 typedef struct {
 	int * sp;//this must be 32 bits wide TODO:use uint_size
@@ -136,6 +137,9 @@ void decode() {
 	if(!dec)
 		illigal();
 	//mainalu.ip=mainalu.ip+1;
+	if(*uout)
+		putchar(*uout);
+	uout=0;
 }
 void start() {
 	while(1) {
