@@ -7,7 +7,7 @@
 char mem[0x1000];
 
 typedef struct {
-	int * sp;
+	int * sp;//this must be 32 bits wide TODO:use uint_size
 	int idm;
 	char * ip;
 	int irup;
@@ -37,6 +37,15 @@ void debug() {
 	machinestate();
 	exit(0);
 }
+int popint() {
+	int r=*(mainalu.sp);
+	*(mainalu.sp)+=1;
+	return r;
+}
+void pushint(int a) {
+	*(mainalu.sp)=a;
+	mainalu.sp+=1;
+}
 void ins_im(){
 	printf("ins_im\n");
 		//Maybe this should be a macro?
@@ -59,15 +68,39 @@ void ins_loadsp(){//see storesp
 	*(mainalu.sp)=v;
 }
 void ins_load() {
+	//*mainalu.sp=mem[(*mainalu.sp&0xFFFFFFFD)*4];
+	pushint(*(&mem+((popint()&0xFFFFFFFD)*4)));
+}
+void ins_store() {
 	*mainalu.sp=mem[(*mainalu.sp&0xFFFFFFFD)*4];
 }
 void ins_addsp() {
+}
+void ins_poppc() {
+	mainalu.ip=(popint());
+}
+void ins_add() {
+	pushint(popint()+popint());
+}
+void ins_or() {
+	pushint(popint()|popint());
+}
+void ins_not() {
+	pushint(~popint());
+}
+void ins_flip() {
 }
 void opless() {
 	switch(*mainalu.ip) {
 	case 0b00001000:ins_load();break;
 	case 0b00001100:ins_store();break;
-		default: illigal();
+	case 0b00000100:ins_poppc();break;
+	case 0b00000101:ins_add();break;
+	case 0b00000111:ins_or();break;
+	case 0b00001001:ins_not();break;
+	case 0b00001010:ins_flip();break;
+		//default: illigal();
+
 	}
 }
 void ins_em() {
@@ -96,7 +129,7 @@ void decode() {
 				case 0b00100000:ins_em();break;
 				case 0b00010000:ins_addsp();break;
 				case 0:opless();break;
-				default: illigal();
+				//default: illigal();
 			}
 		}
 	}	
